@@ -13,7 +13,10 @@ int _tmain(int argc, _TCHAR* argv[])
 		mat.Write("output.txt");
 		return 0;
 	}
-	mat.Write("output.txt");
+	mat.findWay();
+	if (!mat.Write("output.txt")){
+		cout << "Uncorrect output!\n";
+	}
 
 	return 0;
 }

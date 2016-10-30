@@ -49,27 +49,28 @@ int Matrix::Read(char* filename)
 	ifstream infile(filename);
 	if (infile.is_open()){
 		cout << "File name:" << filename << "\n";
+		int count = 0;
+		int size = 0;
+
+		infile.seekg(0, std::ios::end);
+		size = infile.tellg();
+		cout << "Size of file = " << size << "\n";
+		
 		queue<double> tmp;
 		double i;
-		int count = 0;
-		int lines = std::count(std::istreambuf_iterator<char>(infile),
-			std::istreambuf_iterator<char>(), '\n') + 1;
-		int wmax = lines*lines;
-
+		infile.clear();
 		infile.seekg(0, 0);
-		while (!infile.eof() && count <= wmax){
+		while (!infile.eof() && count <= size){
 			infile >> i;
 			tmp.push(i);
+			//cout << i << "\n";
 			++count;
 			i = -1;
 		}
-		if (count > wmax) return 8;//Input is really wrong
-		cout << "While ended\n";
+		if (count > size) return 8;//Input is really wrong
 		int strings = 1;//Strings after matrix
 		double nd = (sqrt((double)strings*(double)strings+4*(double)count) - (double)strings) / 2.0;
 		n = (int)nd;
-		cout << "count = " << count << "\n";
-		cout << "nd = " << nd << "\n";
 
 
 		if (nd != (double)n){
@@ -80,9 +81,6 @@ int Matrix::Read(char* filename)
 		cout << "n=" << n << "\n";
 		arr = new int*[n];
 		names = new int[n];
-		chances = new double[n];
-		exist = new int[n];
-		points = new int[n];
 		double cur;
 		for (int i = 0; i < n + strings; i++) arr[i] = new int[n];
 		for (int i = 0; i < n + strings; i++){
@@ -125,16 +123,49 @@ int Matrix::Read(char* filename)
 int Matrix::Write(char* filename)
 {
 	ofstream outfile(filename, ios_base::trunc);
-	if (n > 0){//If n==0 then out file will be just cleared
+	int* test;
+	if (n > 0 && way != 0){//If n==0 then out file will be just cleared
+		test = new int[n];
+		for (int i = 0; i < n; i++){
+			test[i] = 0;
+		}
+		for (int i = 0; i < n; i++){
+			test[way[i]]++;
+			if (test[way[i]]>1){
+				outfile.close();
+				return 0;// Uncorrect way
+			}
+		}
 		if (outfile.is_open()){
-			outfile << names[0];
+			outfile << way[0];
 			for (int i = 1; i < n; i++){
-				outfile << " -> " << names[i];
+				outfile << " -> " << way[i];
+			}
+		}
+		outfile.close();
+		return 1;// Correct
+	}
+	outfile.close();
+	return 0;// Uncorrect
+}
+
+int Matrix::findWay(){
+	way = new int[n];
+	for (int i = 0; i < n; i++){
+		way[i] = i;
+	}
+	int bub=0;
+	for (int i = 0; i < n-1; i++){
+		for (int j = i+1; j < n; j++){
+			if (names[way[i]]>names[way[j]]){
+				bub = way[i];
+				way[i] = way[j];
+				way[j] = bub;
 			}
 		}
 	}
-	outfile.close();
-	return 0;
+	//way[0] = 0;//Do uncorrect output
+	return 1;//Way found
 }
 
 Matrix::~Matrix()

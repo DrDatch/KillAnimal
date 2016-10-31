@@ -16,17 +16,23 @@ int Matrix::Read(char* filename)
 		queue<double> tmp;
 		double i;
 		int count = 0;
-		annum = std::count(std::istreambuf_iterator<char>(anfile),
-			std::istreambuf_iterator<char>(), '\n') + 1;
-		int wmax = annum * 3;//3 columns of specs
+
+		anfile.seekg(0, std::ios::end);
+		int size = anfile.tellg();
 
 		anfile.seekg(0, 0);
-		while (!anfile.eof() && count <= wmax){
+		while (!anfile.eof() && count <= size){
 			anfile >> i;
 			tmp.push(i);
 			++count;
 		}
-		if (count > wmax) return 5;//Animals is really wrong
+		if (count > size) return 1;//Animals is really wrong
+
+		double dannum;
+		annum = dannum = (double)count / 3;
+		if (dannum != (double)annum){
+			return 2;//Animals is not 3 params for each
+		}
 		animals = new Animal[annum];
 		double a=-1, b=-1, c=-1;
 		for (int i = 0; i < annum; i++){
@@ -37,7 +43,7 @@ int Matrix::Read(char* filename)
 			c = tmp.front();
 			tmp.pop();
 			if (animals[i].setNum(i) || animals[i].setChance(a) || animals[i].setHave(b) || animals[i].setPoints(c)){
-				return 6;//Animals specs is wrong
+				return 3;//Animals specs is wrong
 			}
 			a = b = c = -1;
 		}
@@ -67,7 +73,7 @@ int Matrix::Read(char* filename)
 			++count;
 			i = -1;
 		}
-		if (count > size) return 8;//Input is really wrong
+		if (count > size) return 4;//Input is really wrong
 		int strings = 1;//Strings after matrix
 		double nd = (sqrt((double)strings*(double)strings+4*(double)count) - (double)strings) / 2.0;
 		n = (int)nd;
@@ -75,7 +81,7 @@ int Matrix::Read(char* filename)
 
 		if (nd != (double)n){
 			n = 0;// For out file clearance if something goes wrong
-			return 1;//Uncorect num of numbers
+			return 5;//Uncorect num of numbers
 		}
 
 		cout << "n=" << n << "\n";
@@ -89,24 +95,24 @@ int Matrix::Read(char* filename)
 				cur = tmp.front();
 				if (cur < 0){
 					n = 0;// For out file clearance if something goes wrong
-					return 2;//Something is less then 0 or there is space in the end
+					return 6;//Something is less then 0 or there is space in the end
 				}
 
 				if (cur == 0 && i < n && i != j){
 					n = 0;// For out file clearance if something goes wrong
-					return 3;//The way length is 0 between two animals
+					return 7;//The way length is 0 between two animals
 				}
 				else arr[i][j] = (int)cur;
 
 				if (i == j && cur != 0){
 					n = 0;// For out file clearance if something goes wrong
-					return 3;//The way length is not 0 on diagonal
+					return 8;//The way length is not 0 on diagonal
 				}
 				else arr[i][j] = (int)cur;
 
 				if (i == n && (cur < 0 || cur >= annum)){
 					n = 0;// For out file clearance if something goes wrong
-					return 4;//Number of animal in namelist is 0
+					return 9;//Number of animal in namelist is less then 0 or bigger then animals in "animals" file
 				}
 				else names[j] = (int)cur;
 				
@@ -139,7 +145,7 @@ int Matrix::Write(char* filename)
 		if (outfile.is_open()){
 			outfile << way[0];
 			for (int i = 1; i < n; i++){
-				outfile << " -> " << way[i];
+				outfile << " " << way[i];
 			}
 		}
 		outfile.close();

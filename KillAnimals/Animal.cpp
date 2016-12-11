@@ -65,7 +65,6 @@ int Animal::setPoints(int points){
 int Animal::getPoints(){
 	return points;
 }
-
 Animal::~Animal()
 {
 }

@@ -88,7 +88,7 @@ int Matrix::Read(char* filename)
 		arr = new int*[n];
 		names = new int[n];
 		double cur;
-		for (int i = 0; i < n + strings; i++) arr[i] = new int[n];
+		for (int i = 0; i < n; i++) arr[i] = new int[n];
 		for (int i = 0; i < n + strings; i++){
 			for (int j = 0; j < n; j++){
 				cur = 0;
@@ -102,25 +102,49 @@ int Matrix::Read(char* filename)
 					n = 0;// For out file clearance if something goes wrong
 					return 7;//The way length is 0 between two animals
 				}
-				else arr[i][j] = (int)cur;
 
 				if (i == j && cur != 0){
 					n = 0;// For out file clearance if something goes wrong
 					return 8;//The way length is not 0 on diagonal
 				}
-				else arr[i][j] = (int)cur;
+				else{
+					if(i < n) arr[i][j] = (int)cur;
+				}
 
 				if (i == n && (cur < 0 || cur >= annum)){
 					n = 0;// For out file clearance if something goes wrong
 					return 9;//Number of animal in namelist is less then 0 or bigger then animals in "animals" file
 				}
-				else names[j] = (int)cur;
+				else{
+					if(i == n) names[j] = (int)cur;
+				}
 				
-				cout << cur << " ";
+				//cout << cur << " ";
 				tmp.pop();
 			}
-			cout << "\n";
+			//cout << "\n";
 		}
+	}
+	pway = new PWay*[n];
+
+	for (int i = 0; i < n; i++){
+		pway[i] = new PWay[n];
+		for (int j = 0; j < n; j++){
+			cout << arr[i][j] << " ";
+			pway[i][j].start = to_string(j);
+			pway[i][j].fin = to_string(i);
+		}
+		cout << "\n";
+	}
+	for (int i = 0; i < n; i++){
+		cout << names[i] << " ";
+	}
+	cout << "\n";
+	for (int i = 0; i < n; i++){
+		for (int j = 0; j < n; j++){
+			cout << pway[i][j].start << pway[i][j].mid << pway[i][j].fin << "\t";
+		}
+		cout << "\n";
 	}
 	infile.close();
 	return 0;
@@ -136,6 +160,8 @@ int Matrix::Write(char* filename)
 			test[i] = 0;
 		}
 		for (int i = 0; i < n; i++){
+			way[1];
+			test[1];
 			test[way[i]]++;
 			if (test[way[i]]>1){
 				outfile.close();
@@ -156,22 +182,92 @@ int Matrix::Write(char* filename)
 }
 
 int Matrix::findWay(){
+	const int inf = 1000;
+	//int n = 5;
+	int m = 1 << n;//m=2^n
+	int temp;
+	int** t;
+
 	way = new int[n];
-	for (int i = 0; i < n; i++){
-		way[i] = i;
+	way[0] = 0; //Start with 0
+	t = new int*[m];
+	for (int i = 0; i < m; i++){
+		t[i] = new int[n];
 	}
-	int bub=0;
-	for (int i = 0; i < n-1; i++){
-		for (int j = i+1; j < n; j++){
-			if (names[way[i]]>names[way[j]]){
-				bub = way[i];
-				way[i] = way[j];
-				way[j] = bub;
+
+
+	t[1][0] = 0;
+	for (int i = 1; i < m; i += 2){
+		for (int j = (i == 1) ? 1 : 0; j<n; j++){
+			t[i][j] = inf;
+			if (j > 0 && accept(j, i)){
+				temp = i ^ (1 << j);
+				for (int k = 0; k < n; k++){
+					if (accept(k, i) && arr[k][j]>0){
+						t[i][j] = min(t[i][j], t[temp][k] + arr[k][j]);
+					}
+				}
 			}
 		}
 	}
-	//way[0] = 0;//Do uncorrect output
-	return 1;//Way found
+
+	/*for (int i = 1; i < m; i += 2){
+		cout << i << "\t";
+		for (int j = 0; j < n; j++){
+			if (t[i][j] == 100) cout << "inf\t";
+			else cout << t[i][j] << "\t";
+		}
+		cout << "\n";
+	}*/
+
+	int last;
+	int k = n;
+	int ans = inf;
+	int minh;//Minimum Hamilton cicle
+
+	for (int i = 1; i < n; ++i){
+		if (arr[i][0]>0){
+			if (ans > t[m - 1][i] + arr[i][0]){
+				ans = t[m - 1][i] + arr[i][0];
+				cout << arr[i][0] << " " << t[m - 1][i] << "\n";
+				last = i; way[k] = i; minh = t[m - 1][i];
+			}
+		}
+	}
+
+	int line;
+	int i = m;
+	while (i > 1){
+		line = i - pow(2, last);
+		minh = t[line - 1][last];
+		for (int j = 0; j < n; j++){
+			if (t[i - 1][last] == t[line - 1][j] + arr[j][last] && t[i - 1][last] < minh) {
+				minh = t[i - 1][last];
+				way[k - 1] = last;
+				last = j;
+			}
+
+		}
+		i = line;
+		k--;
+
+	}
+	for (int i = 0; i < n; i++){
+		cout << way[i] << " ";
+	}
+	if (ans == inf) return 0;
+	else return 1;//Way found
+	
+}
+
+int Matrix::findPWay(){
+
+	return 1;
+}
+
+bool Matrix::accept(int n, int x)
+{
+	return (x & (1 << n)) != 0;
 }
 
 Matrix::~Matrix()

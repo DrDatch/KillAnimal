@@ -108,7 +108,10 @@ int Matrix::Read(char* filename)
 					return 8;//The way length is not 0 on diagonal
 				}
 				else{
-					if(i < n) arr[i][j] = (int)cur;
+					if (i < n){//"if" for to be in matrix of n*n
+						if (i != j)	arr[i][j] = (int)cur;
+						else arr[i][j] = inf;
+					}
 				}
 
 				if (i == n && (cur < 0 || cur >= annum)){
@@ -130,9 +133,9 @@ int Matrix::Read(char* filename)
 	for (int i = 0; i < n; i++){
 		pway[i] = new PWay[n];
 		for (int j = 0; j < n; j++){
-			cout << arr[i][j] << " ";
-			pway[i][j].start = to_string(j);
-			pway[i][j].fin = to_string(i);
+			cout << arr[i][j] << "\t";
+			pway[i][j].start = to_string(i);
+			pway[i][j].fin = to_string(j);
 		}
 		cout << "\n";
 	}
@@ -140,12 +143,14 @@ int Matrix::Read(char* filename)
 		cout << names[i] << " ";
 	}
 	cout << "\n";
+	cout << "\n";
 	for (int i = 0; i < n; i++){
 		for (int j = 0; j < n; j++){
 			cout << pway[i][j].start << pway[i][j].mid << pway[i][j].fin << "\t";
 		}
 		cout << "\n";
 	}
+	cout << "\n";
 	infile.close();
 	return 0;
 }
@@ -154,14 +159,13 @@ int Matrix::Write(char* filename)
 {
 	ofstream outfile(filename, ios_base::trunc);
 	int* test;
-	if (n > 0 && way != 0){//If n==0 then out file will be just cleared
-		test = new int[n];
-		for (int i = 0; i < n; i++){
+	waylen = n;//Pain if not change
+	if (waylen > 0 && way != 0){//If n==0 then out file will be just cleared
+		test = new int[annum];
+		for (int i = 0; i < annum; i++){
 			test[i] = 0;
 		}
-		for (int i = 0; i < n; i++){
-			way[1];
-			test[1];
+		for (int i = 0; i < waylen; i++){
 			test[way[i]]++;
 			if (test[way[i]]>1){
 				outfile.close();
@@ -170,7 +174,7 @@ int Matrix::Write(char* filename)
 		}
 		if (outfile.is_open()){
 			outfile << way[0];
-			for (int i = 1; i < n; i++){
+			for (int i = 1; i < waylen; i++){
 				outfile << " " << way[i];
 			}
 		}
@@ -182,8 +186,7 @@ int Matrix::Write(char* filename)
 }
 
 int Matrix::findWay(){
-	const int inf = 1000;
-	//int n = 5;
+	findPWay();
 	int m = 1 << n;//m=2^n
 	int temp;
 	int** t;
@@ -210,15 +213,6 @@ int Matrix::findWay(){
 			}
 		}
 	}
-
-	/*for (int i = 1; i < m; i += 2){
-		cout << i << "\t";
-		for (int j = 0; j < n; j++){
-			if (t[i][j] == 100) cout << "inf\t";
-			else cout << t[i][j] << "\t";
-		}
-		cout << "\n";
-	}*/
 
 	int last;
 	int k = n;
@@ -261,12 +255,81 @@ int Matrix::findWay(){
 }
 
 int Matrix::findPWay(){
-
+	for (int i = 0; i < n; i++){
+		if (animals[names[i]].getHave()){
+			if (rebuild(i)) i--;
+		}
+	}
 	return 1;
 }
+int Matrix::rebuild(int del){
+	int reb = 1;
+	for (int i = 0; i < n; i++){
+		for (int j = 0; j < n; j++){
+			if ((double)(arr[i][del] + arr[del][j]) <= 1.1 * (double)arr[i][j] && i != j){
+				int can = 0;
 
-bool Matrix::accept(int n, int x)
-{
+				if (can){
+					arr[i][j] = arr[i][del] + arr[del][j];
+					pway[i][j].mid += pway[i][del].fin + " ";
+					pway[i][j].points += animals[del].getPoints();
+				}
+			}
+		}
+	}
+
+	for (int i = 0; i < n; i++){
+		for (int j = 0; j < n; j++){
+			cout << arr[i][j] << "\t";
+		}
+		cout << "\n";
+	}
+	cout << "\n";
+	for (int i = 0; i < n; i++){
+		for (int j = 0; j < n; j++){
+			cout << pway[i][j].start << pway[i][j].mid << pway[i][j].fin << "\t";
+		}
+		cout << "\n";
+	}
+	cout << "\n";
+
+	for (int i = 0; i < n - 1; i++){
+		for (int j = 0; j < n - 1; j++){
+			if (i >= del && j < del){
+				arr[i][j] = arr[i+1][j];
+				pway[i][j] = pway[i + 1][j];
+			}
+			if (i < del && j >= del){
+				arr[i][j] = arr[i][j+1];
+				pway[i][j] = pway[i][j + 1];
+			}
+			if (i >= del && j >= del){
+				arr[i][j] = arr[i+1][j+1];
+				pway[i][j] = pway[i + 1][j+1];
+			}
+		}
+		if (i >= del){
+			names[i] = names[i + 1];
+		}
+	}
+	n--;
+	for (int i = 0; i < n; i++){
+		for (int j = 0; j < n; j++){
+			cout << arr[i][j] << "\t";
+		}
+		cout << "\n";
+	}
+	cout << "\n";
+	for (int i = 0; i < n; i++){
+		for (int j = 0; j < n; j++){
+			cout << pway[i][j].start << pway[i][j].mid << pway[i][j].fin << "\t";
+		}
+		cout << "\n";
+	}
+	cout << "\n";
+	return reb;
+}
+bool Matrix::accept(int n, int x){
 	return (x & (1 << n)) != 0;
 }
 

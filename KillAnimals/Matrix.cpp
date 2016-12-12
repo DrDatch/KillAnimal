@@ -360,25 +360,25 @@ int Matrix::tryCatch(){
 
 	for (int i = 0; i < waylen; i++){
 		int p = rand() * 100 / RAND_MAX;
-		if (animals[names[way[i]]].getHave()){
+		if (animals[snames[way[i]]].getHave()){
 			if (i > 0 && i < waylen - 1){
 				if ((double)(sarr[way[i - 1]][way[i]] + sarr[way[i]][way[i + 1]]) <= 1.1 * (double)sarr[way[i - 1]][way[i + 1]]){
 					tmp.push_back(way[i]);
-					if (p < animals[names[way[i]]].getChance() * 100){
-						points += animals[names[way[i]]].getPoints();
+					if (p < animals[snames[way[i]]].getChance() * 100){
+						points += animals[snames[way[i]]].getPoints();
 					}
 				}
 			}
 			else{
 				if (i == 0){
 					tmp.push_back(way[i]);
-					points += animals[names[way[i]]].getPoints();
+					points += animals[snames[way[i]]].getPoints();
 				}
 				else{
 					if ((double)(sarr[way[i - 1]][way[i]] + sarr[way[i]][way[0]]) <= 1.1 * (double)sarr[way[i - 1]][way[0]]){
 						tmp.push_back(way[i]);
-						if (p < animals[names[way[i]]].getChance() * 100){
-							points += animals[names[way[i]]].getPoints();
+						if (p < animals[snames[way[i]]].getChance() * 100){
+							points += animals[snames[way[i]]].getPoints();
 						}
 					}
 				}
@@ -386,8 +386,8 @@ int Matrix::tryCatch(){
 		}
 		else{
 			tmp.push_back(way[i]);
-			if (p < animals[names[way[i]]].getChance() * 100){
-				animals[names[way[i]]].setHave(true);
+			if (p < animals[snames[way[i]]].getChance() * 100){
+				animals[snames[way[i]]].setHave(true);
 			}
 		}
 	}

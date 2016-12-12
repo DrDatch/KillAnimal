@@ -28,8 +28,8 @@ private:
 	int points = 0;
 public:
 	Matrix();
-	int Read(string file);
-	int Write(string file);
+	int Read(std::string file);
+	int Write(std::string file);
 	int findWay();
 	int findPWay();
 	int tryCatch();

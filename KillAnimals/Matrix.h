@@ -24,12 +24,12 @@ private:
 	int* fway = 0;
 	int waylen;
 	PWay** pway;
-	const int inf = 1000;
+	const int inf = 99999;
 	int points = 0;
 public:
 	Matrix();
-	int Read(char* file);
-	int Write(char* file);
+	int Read(string file);
+	int Write(string file);
 	int findWay();
 	int findPWay();
 	int tryCatch();

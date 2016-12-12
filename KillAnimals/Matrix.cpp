@@ -8,7 +8,7 @@ Matrix::Matrix()
 }
 
 
-int Matrix::Read(char* filename)
+int Matrix::Read(string filename)
 {
 	n = 0;// For out file clearance if something goes wrong
 	ifstream anfile("animals");
@@ -141,12 +141,16 @@ int Matrix::Read(char* filename)
 			cout << arr[i][j] << "\t";
 			pway[i][j].start = to_string(i);
 			pway[i][j].fin = to_string(j);
+			if (arr[i][j] != arr[j][i]){
+				n = 0;// For out file clearance if something goes wrong
+				return 10;
+			}
 		}
 		cout << "\n";
 	}
 	for (int i = 0; i < n; i++){
 		snames[i] = names[i];
-		cout << names[i] << " ";
+		cout << names[i] << "\t";
 	}
 	cout << "\n";
 	cout << "\n";
@@ -161,7 +165,7 @@ int Matrix::Read(char* filename)
 	return 0;
 }
 
-int Matrix::Write(char* filename)
+int Matrix::Write(string filename)
 {
 	ofstream outfile(filename, ios_base::trunc);
 	int* test;
